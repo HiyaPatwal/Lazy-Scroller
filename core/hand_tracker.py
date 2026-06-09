@@ -11,8 +11,11 @@ class HandTracker:
             min_tracking_confidence=track_con
         )
         self.mp_draw = mp.solutions.drawing_utils
-        # Tip IDs for Thumb, Index, Middle, Ring, Pinky
+
+        # Landmark indices for fingertips: Thumb → Pinky
         self.tip_ids = [4, 8, 12, 16, 20]
+
+        self.results = None  # Store detection results
 
     def find_hands(self, frame, draw=True):
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -22,42 +25,46 @@ class HandTracker:
             for hand_landmarks in self.results.multi_hand_landmarks:
                 if draw:
                     self.mp_draw.draw_landmarks(
-                        frame, 
-                        hand_landmarks, 
+                        frame,
+                        hand_landmarks,
                         self.mp_hands.HAND_CONNECTIONS
                     )
         return frame
 
     def get_position(self, frame, hand_no=0):
         landmark_list = []
-        if self.results.multi_hand_landmarks:
-            my_hand = self.results.multi_hand_landmarks[hand_no]
-            for id, landmark in enumerate(my_hand.landmark):
-                h, w, c = frame.shape
-                cx, cy = int(landmark.x * w), int(landmark.y * h)
-                landmark_list.append([id, cx, cy])
+
+        # Return empty if no detection
+        if self.results is None or not self.results.multi_hand_landmarks:
+            return landmark_list
+
+        my_hand = self.results.multi_hand_landmarks[hand_no]
+
+        for id, landmark in enumerate(my_hand.landmark):
+            h, w, c = frame.shape
+            cx, cy = int(landmark.x * w), int(landmark.y * h)
+            landmark_list.append([id, cx, cy])
+
         return landmark_list
 
     def fingers_up(self, landmark_list):
         """
-        Determines which fingers are open.
-        Returns a list of 5 binary elements: [Thumb, Index, Middle, Ring, Pinky]
-        1 = Finger Up, 0 = Finger Down
+        Returns finger states as:
+        [Thumb, Index, Middle, Ring, Pinky]
+        1 = Up, 0 = Down
         """
         if len(landmark_list) == 0:
             return [0, 0, 0, 0, 0]
 
         fingers = []
 
-        # 1. Thumb Logic (Horizontal check)
-        # If the tip is to the right of the inner joint, it's open (adjusted for mirror view)
+        # Thumb (horizontal comparison)
         if landmark_list[self.tip_ids[0]][1] > landmark_list[self.tip_ids[0] - 1][1]:
             fingers.append(1)
         else:
             fingers.append(0)
 
-        # 2. Rest of the 4 Fingers Logic (Vertical check)
-        # On screens, Y decreases as you go UP. If Tip Y < PIP joint Y, the finger is extended.
+        # Other fingers (vertical comparison)
         for id in range(1, 5):
             if landmark_list[self.tip_ids[id]][2] < landmark_list[self.tip_ids[id] - 2][2]:
                 fingers.append(1)

@@ -26,7 +26,7 @@ Installation
 
 Clone the repository:
 
-git clone https://github.com/your-username/Lazy-Scroller.git
+git clone https://github.com/HiyaPatwal/Lazy-Scroller.git
 cd Lazy-Scroller
 
 Install dependencies:

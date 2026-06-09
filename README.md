@@ -1,38 +1,71 @@
-# Lazy Scroller
+Lazy Scroller
 
-Control your mouse cursor, scroll, and click using hand gestures — no touching the mouse required.
+A computer vision-based system that enables hands-free mouse control using hand gestures via a webcam.
 
-Built with Python, OpenCV, and MediaPipe's hand landmark model.
+Overview
 
-## Gestures
+Lazy Scroller uses MediaPipe for real-time hand tracking and translates finger gestures into mouse actions such as cursor movement, clicking, and scrolling.
 
-| Gesture | Action |
-|---|---|
-| Index finger up | Move cursor |
-| Index + middle up | Scroll (up/down based on position) |
-| Pinch (index + thumb close) | Click |
-| Double pinch (two pinches quickly) | Double-click |
+Features
 
-## Requirements
+- Cursor movement using index finger
+- Left click using pinch gesture
+- Double click using rapid pinch
+- Vertical scrolling using two-finger gesture
+- Configurable sensitivity and gesture thresholds
 
-- Windows (uses `cv2.CAP_DSHOW` for webcam; remove that flag on Linux/Mac)
-- Python 3.9–3.11
-- A webcam
+Tech Stack
 
-## Setup
+- Python
+- OpenCV
+- MediaPipe
+- PyAutoGUI
+- NumPy
 
-```bash
+Installation
+
+Clone the repository:
+
+git clone https://github.com/your-username/Lazy-Scroller.git
+cd Lazy-Scroller
+
+Install dependencies:
+
 pip install -r requirements.txt
+
+Usage
+
+Run the application:
+
 python main.py
-```
 
-Press **Q** to quit.
+Ensure your webcam is enabled.
 
-## Configuration
+Controls
 
-All tunable settings are at the top of `main.py`:
+Index finger up        -> Move cursor  
+Pinch (thumb + index) -> Left click  
+Rapid pinch           -> Double click  
+Index + middle up     -> Scroll  
 
-- `PINCH_DISTANCE_THRESHOLD` — how tight a pinch triggers a click
-- `SCROLL_MULTIPLIER` — scroll speed
-- `SMOOTHENING` — cursor smoothing (higher = slower but steadier)
-- `USE_SMALL_LOW_FATIGUE_BOX` — smaller tracking zone for less arm movement
+How It Works
+
+- MediaPipe detects hand landmarks in real time
+- Landmark positions determine finger states
+- Gestures are mapped to mouse actions using PyAutoGUI
+- Cursor movement is smoothed for stability
+
+Configuration
+
+Adjust parameters in main.py:
+
+- PINCH_DISTANCE_THRESHOLD
+- SCROLL_MULTIPLIER
+- SMOOTHENING
+- Bounding box dimensions
+
+Limitations
+
+- Performance depends on lighting conditions
+- Requires a stable webcam feed
+- Single-hand tracking only
